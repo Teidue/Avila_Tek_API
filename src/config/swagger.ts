@@ -80,7 +80,7 @@ export const swaggerDocument: SwaggerOptions = {
     "/products": {
       get: {
         tags: ["Products"],
-        summary: "Listar productos paginados",
+        summary: "Listar productos activos paginados",
         parameters: [
           {
             name: "page",
@@ -182,6 +182,49 @@ export const swaggerDocument: SwaggerOptions = {
           200: { description: "Producto eliminado" },
           404: { description: "Producto no encontrado" },
           401: { description: "No autorizado" },
+        },
+      },
+    },
+    "/products/{id}/availability": {
+      put: {
+        tags: ["Product soft delete"],
+        summary: "Activar o desactivar un producto (toggle)",
+        description:
+          "Cambia el estado isActive del producto entre true y false.",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID del producto a alternar disponibilidad",
+            schema: { type: "string", format: "uuid" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Producto actualizado correctamente",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string" },
+                    product: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        isActive: { type: "boolean" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Producto no encontrado",
+          },
         },
       },
     },

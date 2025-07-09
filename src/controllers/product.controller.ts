@@ -54,3 +54,14 @@ export const deleteProduct =
       next(error);
     }
   };
+
+export const setProductAvailability =
+  (productService: ProductService) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const result = await productService.setAvailability(req.params.id);
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };

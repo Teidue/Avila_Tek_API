@@ -41,24 +41,53 @@ export class ProductService {
     if (!product) {
       throw { status: 404, message: "Producto no encontrado" };
     }
-    
+
     return prisma.product.delete({ where: { id } });
   }
 
-  async list(page = 1, limit = 10) {
+  async list(page: number, limit: number) {
     const skip = (page - 1) * limit;
-    const products = await prisma.product.findMany({
-      skip,
-      take: limit,
-    });
 
-    const total = await prisma.product.count();
+    const [products, totalItems] = await Promise.all([
+      prisma.product.findMany({
+        where: { isActive: true }, // FILTRAR SOLO ACTIVOS
+        skip,
+        take: limit,
+      }),
+      prisma.product.count({
+        where: { isActive: true }, // CONTAR SOLO ACTIVOS
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalItems / limit);
 
     return {
       data: products,
       page,
-      totalPages: Math.ceil(total / limit),
-      totalItems: total,
+      totalPages,
+      totalItems,
+    };
+  }
+
+  async setAvailability(id: string) {
+    const product = await prisma.product.findUnique({ where: { id } });
+
+    if (!product) {
+      throw { status: 404, message: "Producto no encontrado" };
+    }
+
+    const updated = await prisma.product.update({
+      where: { id },
+      data: {
+        isActive: !product.isActive,
+      },
+    });
+
+    return {
+      message: `Producto ${
+        updated.isActive ? "activado" : "desactivado"
+      } correctamente.`,
+      product: updated,
     };
   }
 }

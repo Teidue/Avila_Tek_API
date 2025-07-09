@@ -23,30 +23,35 @@ model User {
 }
 
 model Product {
-  id          String   @id @default(uuid())
+  id          String         @id @default(uuid())
   name        String
   description String
   price       Float
   stock       Int
-  createdAt   DateTime @default(now())
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
   orders      OrderProduct[]
 }
 
+/// El campo `status` se inicializa como `"pending"` por defecto.
+/// Aunque el enunciado menciona que se debe capturar el estado del pedido (punto 3c),
+/// en ningún lugar se indica que deba cambiar como parte del flujo.
+/// Por lo tanto, no se implementó alguna lógica para modificar su valor.
+
 model Order {
-  id        String   @id @default(uuid())
+  id        String         @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  status    String   @default("pending")
-  createdAt DateTime @default(now())
+  user      User           @relation(fields: [userId], references: [id])
+  status    String         @default("pending")
+  createdAt DateTime       @default(now())
   items     OrderProduct[]
 }
 
 model OrderProduct {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   orderId   String
   productId String
   quantity  Int
-  order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
 }
-
